@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Customer Service API
+  version: 1.0.0
+  description: Minimal service contract for customer profile retrieval.
+servers:
+  - url: http://localhost:5001
+paths:
+  /customers/{id}:
+    get:
+      summary: Get customer profile by id
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Customer profile returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
+              examples:
+                default:
+                  value:
+                    id: 1
+                    name: Olena Koval
+                    email: olena.koval@example.com
+                    address:
+                      country: UA
+                      city: Kyiv
+                      postalCode: '01001'
+                      street: Khreshchatyk St 1
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    Address:
+      type: object
+      required: [country, city, postalCode, street]
+      properties:
+        country:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        street:
+          type: string
+    CustomerProfile:
+      type: object
+      required: [id, name, email, address]
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          $ref: '#/components/schemas/Address'
