@@ -1,7 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOpenApi();
+
 var customerServiceBaseUrl = builder.Configuration["CustomerService:BaseUrl"]
-    ?? "http://localhost:5001";
+    ?? "http://localhost:5231";
 
 builder.Services.AddHttpClient("CustomerService", client =>
 {
@@ -12,12 +17,15 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+app.MapOpenApi();
+app.MapScalarApiReference();
+
 var orders = new Dictionary<int, Order>();
 var nextOrderId = 1;
 
 app.MapPost("/orders", async Task<IResult> (
     CreateOrderRequest request,
-    string? customerApiVersion,
+    [FromQuery] string? customerApiVersion,
     IHttpClientFactory httpClientFactory) =>
 {
     var customerClient = httpClientFactory.CreateClient("CustomerService");
@@ -62,7 +70,13 @@ app.MapPost("/orders", async Task<IResult> (
 
     return Results.Created($"/orders/{orderId}", newOrder);
 })
-.WithName("CreateOrder");
+.WithName("CreateOrder")
+.WithTags("Orders")
+.WithSummary("Create a new order")
+.WithDescription("Creates a new order by first validating the customer details against the Customer Service.")
+.Produces<Order>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status502BadGateway);
+
 
 app.MapGet("/orders/{id:int}", (int id) =>
 {
@@ -73,14 +87,19 @@ app.MapGet("/orders/{id:int}", (int id) =>
 
     return Results.Ok(order);
 })
-.WithName("GetOrderById");
+.WithName("GetOrderById")
+.WithTags("Orders")
+.WithSummary("Get an order by ID")
+.WithDescription("Retrieves a finalized order from the system using its unique identifier.")
+.Produces<Order>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
 
 app.Run();
 
+
+// Data Contracts
 record CreateOrderRequest(int CustomerId, List<OrderItem> Items);
-
 record OrderItem(string Sku, int Quantity);
-
 record Order(
     int Id,
     int CustomerId,
