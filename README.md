@@ -48,7 +48,7 @@ flowchart LR
 
 ### Реалізація
 - Customer-Service повертає профіль клієнта згідно контракту.
-![Customer contract v1](photos\customer_v1_contract.png)
+![Customer contract v1](/photos/customer_v1_contract.png)
 - Order-Service перед фіналізацією замовлення викликає Customer-Service і очікує поле `name`.
 ```csharp
 app.MapPost("/orders", async Task<IResult> (
@@ -102,9 +102,9 @@ app.MapPost("/orders", async Task<IResult> (
 
 ### Демонстрація порушення контракту
 - У Customer-Service додано окрему версію API v2: `GET /api/v2/customers/{id}`, де `name` перейменовано на `fullName`.
-![Customer contract v2](photos\customer_v2_contract.png)
+![Customer contract v2](/photos/customer_v2_contract.png)
 - Order-Service при `customerApiVersion=v2` отримує відповідь без очікуваного поля `name` і повертає 502 Bad Gateway з повідомленням про порушення контракту.
-![Version mismatch returns 502 error](photos\mismatch_api_versioning.png)
+![Version mismatch returns 502 error](/photos/mismatch_api_versioning.png)
 
 ## 4. Порівняння REST (OpenAPI) vs SOAP (WSDL)
 
